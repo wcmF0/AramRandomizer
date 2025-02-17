@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Aram Randomizer by wcmF0</title>
+    <link rel="icon" href="images/favicon.png" type="image/x-icon" />
+  </head>
+  <body>
+    <div>
+      <label for="language-selector">Selecione o idioma:</label>
+      <select id="language-selector" onchange="alterarIdioma()">
+        <option value="pt-BR">pt-BR</option>
+        <option value="en-US">English</option>
+      </select>
+    </div>
+    <div>
+      <label for="amount-selector">Quantidade de campeões aleatórios:</label>
+      <input id="amount-selector" type="number" value="1" min="1" />
+      <button onclick="gerar()">Gere os campeões aleatorios</button>
+    </div>
+    <nav class="container">
+      <div class="Azul">
+        <h2 class="blue">Lado Azul 🔵</h2>
+        <ul id="ladoAzul"></ul>
+      </div>
+      <div class="Vermelho">
+        <h2 class="red">Lado Vermelho 🔴</h2>
+        <ul id="ladoVermelho"></ul>
+      </div>
+    </nav>
+    <footer>
+      <p id="versao-patch">Patch:</p>
+      <p>
+        Made by <a href="https://github.com/wcmF0" target="_blank">wcmF0</a>
+      </p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
