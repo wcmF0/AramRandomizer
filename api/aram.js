@@ -1,17 +1,5 @@
-// Importa os módulos necessários
-const cors = require("cors");
-const express = require("express");
-const path = require("path");
+// api/aram.js
 
-// Inicializa o aplicativo Express
-const app = express();
-const port = 3000;
-
-// Middleware para servir arquivos estáticos
-app.use(cors());
-app.use(express.static(path.join(__dirname)));
-
-// Lista de campeões com dados de ARAM
 const champions = [
   {
     id: "Aatrox",
@@ -1324,27 +1312,11 @@ const champions = [
   },
 ];
 
-// Rota que retorna todos os campeões
-app.get("/api/aram", (req, res) => {
-  res.json(champions);
-});
-
-// Rota que retorna dados de um campeão específico pelo ID (nome)
-app.get("/api/aram/:id", (req, res) => {
-  const championId = req.params.id;
-  console.log("Recebido ID:", championId);
-  const championData = champions.find(
-    (champ) => champ.id.toLowerCase() === championId.toLowerCase()
-  );
-
-  if (championData) {
-    res.json(championData);
+export default function handler(req, res) {
+  if (req.method === "GET") {
+    res.status(200).json(champions);
   } else {
-    res.status(404).send("Campeão não encontrado");
+    res.setHeader("Allow", ["GET"]);
+    res.status(405).end(`Método ${req.method} não permitido`);
   }
-});
-
-// Inicia o servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
-});
+}

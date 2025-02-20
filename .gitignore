@@ -12,3 +12,4 @@ Thumbs.db
 
 # Diretórios de ambiente
 .env
+.vercel

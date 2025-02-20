@@ -271,7 +271,7 @@ const adicionarEventListeners = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/aram/${encodeURIComponent(championId)}`
+          `/api/aram/${encodeURIComponent(championId)}`
         );
 
         const championData = await response.json();
