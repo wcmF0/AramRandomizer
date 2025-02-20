@@ -98,7 +98,7 @@ const champions = [
   },
   {
     id: "Aurora",
-    apiname: "Auraora",
+    apiname: "Aurora",
     aram: {},
   },
 

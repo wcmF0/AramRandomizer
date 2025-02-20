@@ -264,11 +264,27 @@ function adicionarAtributo(identificador, valor) {
 // Função para adicionar event listeners aos ícones dos campeões
 const adicionarEventListeners = () => {
   const championIcons = document.querySelectorAll(".champion-icon");
+  let infoBoxAberta = null; // Guarda a infoBox atualmente aberta
 
   championIcons.forEach((icon) => {
-    icon.addEventListener("mouseover", async (event) => {
+    icon.addEventListener("click", async (event) => {
+      event.stopPropagation(); // Impede que o clique seja propagado para elementos pais
+
       const championId = event.target.getAttribute("data-id");
 
+      // Se a infoBox estiver aberta, feche-a
+
+      if (infoBoxAberta) {
+        infoBoxAberta.remove();
+        infoBoxAberta = null;
+
+        // Se o mesmo ícone foi clicado novamente, não reabre a infoBox
+        if (infoBoxAberta && infoBoxAberta.dataset.championId === championId) {
+          return;
+        }
+      }
+
+      // Cria uma nova infoBox
       try {
         const response = await fetch(
           `/api/aram/${encodeURIComponent(championId)}`
@@ -276,8 +292,10 @@ const adicionarEventListeners = () => {
 
         const championData = await response.json();
 
-        const infoBox = document.createElement("div");
-        infoBox.classList.add("aram-info-box");
+        infoBoxAberta = document.createElement("div");
+        infoBoxAberta.classList.add("aram-info-box");
+        infoBoxAberta.dataset.championId = championId; // Armazena o ID do campeão
+
         let infoBoxContent = `<strong>${championData.apiname}</strong><br>`;
 
         if (Object.keys(championData.aram).length === 0) {
@@ -307,25 +325,28 @@ const adicionarEventListeners = () => {
           });
         }
 
-        infoBox.innerHTML = infoBoxContent;
+        infoBoxAberta.innerHTML = infoBoxContent;
 
-        document.body.appendChild(infoBox);
+        // Posiciona a infoBox abaixo do ícone
+        const rect = icon.getBoundingClientRect();
+        infoBoxAberta.style.position = "absolute";
+        infoBoxAberta.style.left = `${rect.left + window.scrollX}px`;
+        infoBoxAberta.style.top = `${rect.bottom + window.scrollY + 5}px`;
 
-        const moveInfoBox = (e) => {
-          infoBox.style.left = `${e.pageX + 10}px`;
-          infoBox.style.top = `${e.pageY + 10}px`;
-        };
-
-        document.addEventListener("mousemove", moveInfoBox);
-
-        icon.addEventListener("mouseout", () => {
-          infoBox.remove();
-          document.removeEventListener("mousemove", moveInfoBox);
-        });
+        document.body.appendChild(infoBoxAberta);
       } catch (error) {
         console.error("Erro ao buscar dados do campeão:", error);
       }
     });
+  });
+
+  // Fecha a infoBox ao clicar em qualquer lugar fora dela
+
+  document.addEventListener("click", (event) => {
+    if (infoBoxAberta) {
+      infoBoxAberta.remove();
+      infoBoxAberta = null;
+    }
   });
 };
 

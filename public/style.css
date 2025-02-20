@@ -156,8 +156,12 @@ p {
   font-size: 16px;
   cursor: pointer;
 }
+.champion-icon {
+  cursor: pointer;
+}
 
 .aram-info-box {
+  z-index: 1000;
   position: absolute;
   background-color: rgba(0, 0, 0, 0.85);
   color: #fff;
