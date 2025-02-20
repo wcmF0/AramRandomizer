@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="style.css" />
     <title>Aram Randomizer by wcmF0</title>
     <link rel="icon" href="images/favicon.png" type="image/x-icon" />
@@ -11,8 +18,8 @@
     <div>
       <label for="language-selector">Selecione o idioma:</label>
       <select id="language-selector" onchange="alterarIdioma()">
-        <option value="pt-BR">pt-BR</option>
-        <option value="en-US">English</option>
+        <option value="pt-BR">Português (BR)</option>
+        <option value="en-US" selected>English</option>
       </select>
     </div>
     <div>
@@ -35,10 +42,14 @@
       <input type="text" id="share-link" readonly />
       <button id="copy-link-button">Copiar Link</button>
     </div>
+    <div id="loading-overlay" style="display: none">
+      <img src="/images/loading.gif" alt="Loading..." />
+    </div>
     <footer>
       <p id="versao-patch">Patch:</p>
       <p>
-        Made by <a href="https://github.com/wcmF0" target="_blank">wcmF0</a>
+        <strong> Made by</strong>
+        <a href="https://github.com/wcmF0"> <strong>wcmF0</strong></a>
       </p>
     </footer>
     <script src="script.js"></script>

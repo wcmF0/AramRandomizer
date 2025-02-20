@@ -882,7 +882,6 @@ const champions = [
     id: "Samira",
     apiname: "Samira",
     aram: {
-      dmg_dealt: 1,
       dmg_taken: 1.05,
     },
   },
