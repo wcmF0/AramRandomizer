@@ -218,7 +218,7 @@ p {
   border-radius: 50%;
   width: 24px;
   height: 24px;
-  animation: spin 10ms linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
