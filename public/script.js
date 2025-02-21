@@ -6,7 +6,7 @@ const textos = {
   "pt-BR": {
     languageSelectorLabel: "Selecione o idioma:",
     amountSelectorLabel: "Quantidade de campeões aleatórios:",
-    generateButton: "Gere os campeões aleatórios",
+    generateButton: "Gere os campeões aleatorios",
     sideBlueTitle: "Lado Azul",
     sideRedTitle: "Lado Vermelho",
     shareLinkText: "Compartilhe o link com seus amigos:",
@@ -68,6 +68,7 @@ const alterarIdioma = () => {
   const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
   window.history.replaceState({}, "", newUrl);
 };
+
 document.getElementById("language-selector").value = idiomaSelecionado;
 alterarIdioma();
 
@@ -76,7 +77,10 @@ const obterVersaoMaisRecente = async () => {
     const resp = await fetch(
       "https://ddragon.leagueoflegends.com/api/versions.json"
     );
-    if (resp.ok) return (await resp.json())[0];
+    if (resp.ok) {
+      const versions = await resp.json();
+      return versions[0];
+    }
   } catch (error) {
     console.error("Erro ao buscar a versão mais recente:", error);
   }
@@ -85,7 +89,10 @@ const obterVersaoMaisRecente = async () => {
 const chamarApi = async (url) => {
   try {
     const resp = await fetch(url);
-    if (resp.ok) return Object.keys((await resp.json()).data);
+    if (resp.ok) {
+      const data = await resp.json();
+      return Object.keys(data.data);
+    }
   } catch (error) {
     console.error("Erro na requisição:", error);
   }
@@ -100,21 +107,25 @@ const escolherIdsAleatorios = (ids, quantidade) => {
 };
 
 const dividirIds = (ids) => {
-  const ladoAzul = [],
-    ladoVermelho = [];
-  ids.forEach((id, index) =>
-    (index % 2 === 0 ? ladoAzul : ladoVermelho).push(id)
-  );
+  const ladoAzul = [];
+  const ladoVermelho = [];
+  ids.forEach((id, index) => {
+    if (index % 2 === 0) {
+      ladoAzul.push(id);
+    } else {
+      ladoVermelho.push(id);
+    }
+  });
   return { ladoAzul, ladoVermelho };
 };
 
-const obterUrlImagem = (id) =>
-  `${URL_BASE}${versaoAtual}/img/champion/${id}.png`;
+const obterUrlImagem = (id) => {
+  return `${URL_BASE}${versaoAtual}/img/champion/${id}.png`;
+};
 
 const exibirIds = (ladoAzul, ladoVermelho) => {
   const criarElemento = (id) => {
     const li = document.createElement("li");
-    li.classList.add("champion-item");
     const img = document.createElement("img");
     img.src = obterUrlImagem(id);
     img.alt = id;
@@ -123,14 +134,9 @@ const exibirIds = (ladoAzul, ladoVermelho) => {
     img.setAttribute("data-id", id);
     li.appendChild(img);
     li.appendChild(document.createTextNode(id));
-
-    // Adiciona o indicador de carregamento
-    const loadingIndicator = document.createElement("div");
-    loadingIndicator.classList.add("loading-indicator");
-    li.appendChild(loadingIndicator);
-
     return li;
   };
+
   document
     .getElementById("ladoAzul")
     .replaceChildren(...ladoAzul.map(criarElemento));
@@ -138,7 +144,6 @@ const exibirIds = (ladoAzul, ladoVermelho) => {
     .getElementById("ladoVermelho")
     .replaceChildren(...ladoVermelho.map(criarElemento));
 
-  // Adiciona os event listeners após exibir os ícones
   adicionarEventListeners();
 };
 
@@ -168,7 +173,6 @@ const gerar = async () => {
     )}&lang=${idiomaSelecionado}&amt=${quantidade}`;
     window.history.pushState({}, "", newUrl);
 
-    // Atualizar o link no input e exibir o container
     const shareLinkInput = document.getElementById("share-link");
     shareLinkInput.value = window.location.href;
 
@@ -177,11 +181,10 @@ const gerar = async () => {
   }
 };
 
-// Função para copiar o link
 const copiarLink = () => {
   const shareLinkInput = document.getElementById("share-link");
   shareLinkInput.select();
-  shareLinkInput.setSelectionRange(0, 99999); // Para dispositivos móveis
+  shareLinkInput.setSelectionRange(0, 99999);
 
   try {
     const sucesso = document.execCommand("copy");
@@ -195,7 +198,6 @@ const copiarLink = () => {
   }
 };
 
-// Adicionar evento ao botão de copiar
 document
   .getElementById("copy-link-button")
   .addEventListener("click", copiarLink);
@@ -211,21 +213,17 @@ const carregarCampeoesDaURL = async () => {
     document.getElementById("language-selector").value = langParam;
     alterarIdioma();
   } else {
-    // Aplica o idioma padrão se não houver parâmetro na URL
     document.getElementById("language-selector").value = idiomaSelecionado;
     alterarIdioma();
   }
 
   if (championsParam && amtParam) {
-    // Decodificar os IDs do Base64
     const idsString = atob(championsParam);
     const idsAleatorios = idsString.split(",");
     const quantidade = parseInt(amtParam, 10);
-
     const { ladoAzul, ladoVermelho } = dividirIds(idsAleatorios);
     exibirIds(ladoAzul, ladoVermelho);
 
-    // Atualizar o link no input e exibir o container
     const shareLinkInput = document.getElementById("share-link");
     shareLinkInput.value = window.location.href;
 
@@ -236,125 +234,74 @@ const carregarCampeoesDaURL = async () => {
 
 const carregarVersao = async () => {
   versaoAtual = await obterVersaoMaisRecente();
-  if (versaoAtual)
+  if (versaoAtual) {
     document.getElementById(
       "versao-patch"
     ).textContent = `Patch: ${versaoAtual}`;
-
-  // Carregar campeões da URL se houver
+  }
   await carregarCampeoesDaURL();
 };
 
-// Função para adicionar atributos à info box com coloração
 function adicionarAtributo(identificador, valor) {
   let resultado = "";
   const nome = textos[idiomaSelecionado].attributes[identificador];
   let formattedValue = "";
-  let classe = ""; // Classe CSS para aplicar a cor
+  let classe = "";
 
   if (identificador === "ability_haste") {
-    // Exibir como '+10' ou '-10'
     formattedValue = valor > 0 ? `+${valor}` : `${valor}`;
     classe = valor > 0 ? "buff" : "debuff";
   } else if (identificador === "total_as" || identificador === "tenacity") {
-    // Sempre verde
     const percentIncrease = ((valor - 1) * 100).toFixed(1);
     formattedValue = `+${percentIncrease}%`;
     classe = "buff";
   } else if (identificador === "dmg_taken") {
-    // Dano Recebido
     const percent = (valor * 100).toFixed(0);
     formattedValue = `${percent}%`;
     if (valor > 1) {
-      // Debuff
       classe = "debuff";
     } else if (valor < 1) {
-      // Buff
       classe = "buff";
     }
   } else {
-    // Outros atributos
     const percent = (valor * 100).toFixed(0);
     formattedValue = `${percent}%`;
     if (valor > 1) {
-      // Buff
       classe = "buff";
     } else if (valor < 1) {
-      // Debuff
       classe = "debuff";
     }
   }
-
-  // Monta o resultado com a classe CSS
   resultado = `<span class="${classe}">${nome}: ${formattedValue}</span><br>`;
-
   return resultado;
 }
 
 const adicionarEventListeners = () => {
   const championIcons = document.querySelectorAll(".champion-icon");
-  let infoBoxAberta = null;
-  let timeoutId = null;
-  let currentFetchController = null;
-
-  // Seleciona o overlay de carregamento
-  const loadingOverlay = document.getElementById("loading-overlay");
+  let infoBoxesAbertas = [];
 
   championIcons.forEach((icon) => {
     icon.addEventListener("click", async (event) => {
       event.stopPropagation();
       const championId = event.target.getAttribute("data-id");
 
-      // Exibe o overlay de carregamento
-      loadingOverlay.style.display = "flex";
-
-      // Se houver uma infoBox aberta, remova-a
-      if (infoBoxAberta) {
-        infoBoxAberta.classList.remove("show");
-
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-
-        setTimeout(() => {
-          if (infoBoxAberta) {
-            infoBoxAberta.remove();
-            infoBoxAberta = null;
-          }
-        }, 300);
+      // Verifica se já existe uma info-box para este campeão
+      const infoBoxExistente = infoBoxesAbertas.find(
+        (box) => box.dataset.championId === championId
+      );
+      if (infoBoxExistente) {
+        return;
       }
-
-      // Se houver uma requisição em andamento, cancele-a
-      if (currentFetchController) {
-        currentFetchController.abort();
-      }
-
-      // Cria um novo AbortController para a nova requisição
-      currentFetchController = new AbortController();
-      const signal = currentFetchController.signal;
 
       try {
         const response = await fetch(
-          `/api/aram/${encodeURIComponent(championId)}`,
-          { signal }
+          `/api/aram/${encodeURIComponent(championId)}`
         );
-
-        // Se a requisição foi abortada ou houve um erro, não faça nada
-        if (!response.ok) {
-          // Oculta o overlay mesmo que a resposta não seja ok
-          loadingOverlay.style.display = "none";
-          return;
-        }
-
         const championData = await response.json();
 
-        // Oculta o overlay de carregamento
-        loadingOverlay.style.display = "none";
-
-        infoBoxAberta = document.createElement("div");
-        infoBoxAberta.classList.add("aram-info-box");
-        infoBoxAberta.dataset.championId = championId;
+        const infoBox = document.createElement("div");
+        infoBox.classList.add("aram-info-box");
+        infoBox.dataset.championId = championId;
 
         let infoBoxContent = `<strong>${championData.apiname}</strong><br>`;
 
@@ -372,7 +319,6 @@ const adicionarEventListeners = () => {
             "ability_haste",
             "total_as",
           ];
-
           atributos.forEach((atributo) => {
             if (atributo in championData.aram) {
               infoBoxContent += adicionarAtributo(
@@ -383,76 +329,50 @@ const adicionarEventListeners = () => {
           });
         }
 
-        infoBoxAberta.innerHTML = infoBoxContent;
+        // Adiciona o botão de fechar (X)
+        infoBoxContent += `<span class="close-btn">&times;</span>`;
+        infoBox.innerHTML = infoBoxContent;
+
+        // Aplica a animação de entrada (fade in)
+        infoBox.style.animation = "fadeIn 0.5s ease-out forwards";
 
         const rect = icon.getBoundingClientRect();
-        infoBoxAberta.style.position = "absolute";
-        infoBoxAberta.style.left = `${rect.right + window.scrollX + 100}px`;
-        infoBoxAberta.style.top = `${rect.top + window.scrollY - 10}px`;
+        infoBox.style.position = "absolute";
+        infoBox.style.left = `${rect.right + window.scrollX + 100}px`;
+        infoBox.style.top = `${rect.top + window.scrollY - 10}px`;
 
-        document.body.appendChild(infoBoxAberta);
+        document.body.appendChild(infoBox);
+        infoBoxesAbertas.push(infoBox);
 
-        void infoBoxAberta.offsetWidth;
-
-        infoBoxAberta.classList.add("show");
-
-        // Inicia o temporizador para fechar automaticamente após 3 segundos
-        timeoutId = setTimeout(() => {
-          if (infoBoxAberta) {
-            infoBoxAberta.classList.remove("show");
+        // Define um timer para fechar automaticamente a info-box após 5 segundos
+        const autoCloseTimer = setTimeout(() => {
+          if (document.body.contains(infoBox)) {
+            infoBox.classList.add("fade-out");
             setTimeout(() => {
-              if (infoBoxAberta) {
-                infoBoxAberta.remove();
-                infoBoxAberta = null;
-              }
-            }, 300);
+              infoBox.remove();
+              infoBoxesAbertas = infoBoxesAbertas.filter(
+                (box) => box !== infoBox
+              );
+            }, 500); // tempo de duração da animação de fade out
           }
-        }, 3000);
-      } catch (error) {
-        // Oculta o overlay em caso de erro
-        loadingOverlay.style.display = "none";
+        }, 5000);
 
-        if (error.name === "AbortError") {
-          // A requisição foi abortada, não precisa fazer nada
-          return;
-        } else {
-          console.error("Erro ao buscar dados do campeão:", error);
-        }
-      } finally {
-        // Limpa o currentFetchController se a requisição foi concluída ou abortada
-        currentFetchController = null;
+        // Evento para fechar a info-box ao clicar no "X"
+        infoBox.querySelector(".close-btn").addEventListener("click", () => {
+          clearTimeout(autoCloseTimer);
+          infoBox.classList.add("fade-out");
+          setTimeout(() => {
+            infoBox.remove();
+            infoBoxesAbertas = infoBoxesAbertas.filter(
+              (box) => box !== infoBox
+            );
+          }, 500);
+        });
+      } catch (error) {
+        console.error("Erro ao buscar dados do campeão:", error);
       }
     });
   });
-
-  // Fecha a infoBox ao clicar em qualquer lugar fora dela
-  document.addEventListener("click", (event) => {
-    if (infoBoxAberta) {
-      infoBoxAberta.classList.remove("show");
-
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-
-      setTimeout(() => {
-        if (infoBoxAberta) {
-          infoBoxAberta.remove();
-          infoBoxAberta = null;
-        }
-      }, 300);
-    }
-
-    // Cancela qualquer requisição em andamento
-    if (currentFetchController) {
-      currentFetchController.abort();
-      currentFetchController = null;
-    }
-
-    // Oculta o overlay de carregamento
-    loadingOverlay.style.display = "none";
-  });
 };
 
-// Iniciar a aplicação ao carregar a página
 window.addEventListener("load", carregarVersao);
